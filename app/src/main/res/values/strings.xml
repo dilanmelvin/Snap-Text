@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">SnapText</string>
+    <string name="tile_label">SnapText</string>
+    <string name="setup_title">Setup SnapText</string>
+    <string name="step1_title">Step 1 - Allow Overlay</string>
+    <string name="step1_desc">SnapText needs to draw over other apps to show text on your screen.</string>
+    <string name="step1_btn">Grant Permission</string>
+    <string name="step2_title">Step 2 - Add to Quick Settings</string>
+    <string name="step2_desc">Pull down from the top of your screen, tap the pencil icon, and drag the SnapText tile into your panel.</string>
+    <string name="step2_btn">Open Quick Settings</string>
+    <string name="all_set">All set! Open any app, then tap the SnapText tile.</string>
+    <string name="copied">Copied!</string>
+    <string name="copied_to_clipboard">Copied to clipboard</string>
+    <string name="no_text_found">No text found on screen.</string>
+    <string name="scan_failed">Could not scan this screen.</string>
+    <string name="screen_capture_denied">Screen capture permission denied.</string>
+    <string name="overlay_permission_denied">Please grant overlay permission first.</string>
+    <string name="quick_settings_hint">Pull down from the top, tap the pencil icon, then drag the SnapText tile in.</string>
+    <string name="notification_channel_name">SnapText Active</string>
+    <string name="notification_text">Scanning screen...</string>
+    <string name="accessibility_service_desc">Copy visible text from the current app without taking screenshots.</string>
+    <string name="accessibility_required">Enable SnapText accessibility once to copy text without the screen-share popup.</string>
+</resources>

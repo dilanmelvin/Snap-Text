@@ -1,0 +1,13 @@
+<resources>
+    <color name="primary">#0F1115</color>
+    <color name="primary_panel">#1B1F27</color>
+    <color name="surface">#1B1F27</color>
+    <color name="accent">#D7DEE8</color>
+    <color name="danger">#FF6B6B</color>
+    <color name="overlay_bg">#08000000</color>
+    <color name="block_bg">#22FFFFFF</color>
+    <color name="block_text">#FF000000</color>
+    <color name="block_border">#80FFFFFF</color>
+    <color name="button_bg">#E7EAF0</color>
+    <color name="button_text">#101318</color>
+</resources>
