@@ -3,13 +3,10 @@ package com.snaptext.app.tile
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
-import android.provider.Settings
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
-import android.widget.Toast
 import androidx.annotation.RequiresApi
-import com.snaptext.app.R
-import com.snaptext.app.accessibility.SnapAccessibilityService
+import com.snaptext.app.capture.CapturePermissionActivity
 
 @RequiresApi(Build.VERSION_CODES.N)
 class SnapTileService : TileService() {
@@ -30,16 +27,10 @@ class SnapTileService : TileService() {
             updateTile()
         }
 
-        if (SnapAccessibilityService.scanVisibleText()) {
-            setInactive()
-            return
-        }
-
-        Toast.makeText(this, R.string.accessibility_required, Toast.LENGTH_LONG).show()
-        val settingsIntent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply {
+        val captureIntent = Intent(this, CapturePermissionActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
-        startActivityAndCollapseCompat(settingsIntent)
+        startActivityAndCollapseCompat(captureIntent)
         setInactive()
     }
 

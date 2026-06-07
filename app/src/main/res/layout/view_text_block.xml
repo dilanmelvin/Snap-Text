@@ -6,4 +6,4 @@
     android:background="@drawable/bg_text_block"
     android:clickable="true"
     android:focusable="true"
-    android:minHeight="18dp" />
+    android:minHeight="16dp" />

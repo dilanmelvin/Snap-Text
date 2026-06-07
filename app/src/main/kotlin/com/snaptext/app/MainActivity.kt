@@ -43,8 +43,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnOpenQuickSettings.setOnClickListener {
-            Toast.makeText(this, R.string.accessibility_required, Toast.LENGTH_LONG).show()
-            startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
+            Toast.makeText(this, R.string.quick_settings_hint, Toast.LENGTH_LONG).show()
         }
     }
 

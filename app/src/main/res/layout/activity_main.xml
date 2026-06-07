@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="Copy visible text from any app"
+            android:text="Copy text from your screen"
             android:textColor="#AEB6C2"
             android:textSize="16sp" />
 
@@ -51,7 +51,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Enable overlay and accessibility once. Then tap the Quick Settings tile to copy text without screen-share popups."
+                android:text="Enable overlay once. Then add SnapText to Quick Settings and tap it from any app."
                 android:textColor="#B8C0CC"
                 android:textSize="14sp" />
 
@@ -87,7 +87,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Accessibility"
+                android:text="Quick Settings"
                 android:textColor="@color/accent"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -96,7 +96,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Turn on SnapText in Accessibility settings for direct text copying."
+                android:text="Pull down from the top, tap edit, and add the SnapText tile."
                 android:textColor="#B8C0CC"
                 android:textSize="14sp" />
 
@@ -106,7 +106,7 @@
                 android:layout_height="48dp"
                 android:layout_marginTop="16dp"
                 android:backgroundTint="@color/button_bg"
-                android:text="Open Accessibility Settings"
+                android:text="How to Add Tile"
                 android:textColor="@color/button_text"
                 android:textStyle="bold" />
         </LinearLayout>

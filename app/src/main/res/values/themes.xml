@@ -5,4 +5,12 @@
         <item name="colorOnPrimary">@color/accent</item>
         <item name="android:statusBarColor">@color/primary</item>
     </style>
+
+    <style name="Theme.SnapText.Transparent" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowDisablePreview">true</item>
+    </style>
 </resources>
