@@ -1,128 +1,377 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primary"
-    android:fillViewport="true">
+    android:background="@color/bg_black"
+    android:fillViewport="true"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingHorizontal="22dp"
+        android:paddingTop="44dp"
+        android:paddingBottom="28dp">
+
+        <!-- ===== Hero ===== -->
+        <ImageView
+            android:layout_width="84dp"
+            android:layout_height="84dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/app_name"
+            android:src="@drawable/ic_snaptext_logo" />
 
         <TextView
-            android:id="@+id/tvAppName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
             android:text="@string/app_name"
-            android:textColor="@color/accent"
-            android:textSize="36sp"
-            android:textStyle="bold" />
+            android:textColor="@color/text_primary"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:letterSpacing="-0.01" />
 
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Copy text from your screen"
-            android:textColor="#AEB6C2"
-            android:textSize="16sp" />
-
-        <LinearLayout
-            android:id="@+id/cardStep1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:background="@color/primary_panel"
+            android:layout_marginTop="7dp"
+            android:gravity="center"
+            android:lineSpacingExtra="2dp"
+            android:text="Copy text from any screen, instantly"
+            android:textColor="@color/text_secondary"
+            android:textSize="15sp" />
+
+        <!-- Ready pill (shown once overlay permission is granted) -->
+        <TextView
+            android:id="@+id/tvAllSet"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_all_set"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="8dp"
+            android:text="Ready to use"
+            android:textColor="@color/success"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <!-- ===== Setup ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:layout_marginBottom="12dp"
+            android:text="Setup"
+            android:textColor="@color/text_tertiary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.06" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
             android:orientation="vertical"
             android:padding="20dp">
 
+            <!-- Overlay permission -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Setup"
-                android:textColor="@color/accent"
+                android:text="Display over other apps"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Enable overlay once. Then add SnapText to Quick Settings and tap it from any app."
-                android:textColor="#B8C0CC"
-                android:textSize="14sp" />
+                android:layout_marginTop="4dp"
+                android:lineSpacingExtra="2dp"
+                android:text="Lets SnapText show selectable text on top of other apps."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnOverlayPermission"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="@color/button_bg"
-                android:text="Grant Overlay Permission"
-                android:textColor="@color/button_text"
-                android:textStyle="bold" />
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:text="Grant permission"
+                android:textAllCaps="false"
+                android:textColor="@color/btn_primary_text"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                app:backgroundTint="@color/btn_primary"
+                app:cornerRadius="12dp" />
 
             <TextView
                 android:id="@+id/tvOverlayStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Status unknown"
-                android:textColor="#FF6B6B"
+                android:layout_marginTop="10dp"
+                android:text="Not granted yet"
+                android:textColor="@color/danger"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginVertical="20dp"
+                android:background="@color/card_border" />
+
+            <!-- Quick Settings tile -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Quick Settings tile"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:lineSpacingExtra="2dp"
+                android:text="Add SnapText to your Quick Settings so you can launch it from any app."
+                android:textColor="@color/text_secondary"
                 android:textSize="13sp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenQuickSettings"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="14dp"
+                android:text="How to add the tile"
+                android:textAllCaps="false"
+                android:textColor="@color/text_primary"
+                android:textSize="15sp"
+                app:cornerRadius="12dp"
+                app:rippleColor="@color/card_border"
+                app:strokeColor="@color/card_border"
+                app:strokeWidth="1dp" />
         </LinearLayout>
 
+        <!-- ===== How to use ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="12dp"
+            android:text="How to use"
+            android:textColor="@color/text_tertiary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.06" />
+
         <LinearLayout
-            android:id="@+id/cardStep2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@color/primary_panel"
+            android:background="@drawable/bg_card"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Step 1 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_step_circle"
+                    android:gravity="center"
+                    android:text="1"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:text="Open any app that has text you want."
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Step 2 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_step_circle"
+                    android:gravity="center"
+                    android:text="2"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:text="Pull down Quick Settings and tap SnapText."
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Step 3 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_step_circle"
+                    android:gravity="center"
+                    android:text="3"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:text="Approve the capture prompt — the screen freezes."
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+
+            <!-- Step 4 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="26dp"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_step_circle"
+                    android:gravity="center"
+                    android:text="4"
+                    android:textColor="@color/accent_cyan"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="14dp"
+                    android:layout_weight="1"
+                    android:text="Tap or drag across the text, then tap Copy."
+                    android:textColor="@color/text_primary"
+                    android:textSize="14sp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===== Good to know ===== -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_marginBottom="12dp"
+            android:text="Good to know"
+            android:textColor="@color/text_tertiary"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.06" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_card"
             android:orientation="vertical"
             android:padding="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Quick Settings"
-                android:textColor="@color/accent"
-                android:textSize="16sp"
+                android:text="Languages"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:lineSpacingExtra="2dp"
+                android:text="English, Chinese, Japanese, Korean, Hindi and Latin-based languages."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Pull down from the top, tap edit, and add the SnapText tile."
-                android:textColor="#B8C0CC"
-                android:textSize="14sp" />
-
-            <Button
-                android:id="@+id/btnOpenQuickSettings"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
                 android:layout_marginTop="16dp"
-                android:backgroundTint="@color/button_bg"
-                android:text="How to Add Tile"
-                android:textColor="@color/button_text"
+                android:text="Privacy"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
                 android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:lineSpacingExtra="2dp"
+                android:text="Everything runs on your device. No account, no servers, nothing uploaded."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Good to remember"
+                android:textColor="@color/text_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:lineSpacingExtra="2dp"
+                android:text="Android asks for capture permission each time for your privacy. High-contrast text scans best, and some apps block screenshots."
+                android:textColor="@color/text_secondary"
+                android:textSize="13sp" />
         </LinearLayout>
 
+        <!-- ===== Footer ===== -->
         <TextView
-            android:id="@+id/tvAllSet"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:background="#252B35"
+            android:layout_marginTop="28dp"
             android:gravity="center"
-            android:padding="16dp"
-            android:text="@string/all_set"
-            android:textColor="@color/accent"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            android:visibility="gone" />
+            android:text="SnapText  ·  Version 1.0"
+            android:textColor="@color/text_tertiary"
+            android:textSize="12sp" />
     </LinearLayout>
 </ScrollView>

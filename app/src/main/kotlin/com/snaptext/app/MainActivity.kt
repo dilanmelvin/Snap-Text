@@ -4,9 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import androidx.core.content.ContextCompat
 import com.snaptext.app.databinding.ActivityMainBinding
 import com.snaptext.app.ocr.OcrEngine
@@ -47,7 +47,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.btnOpenQuickSettings.setOnClickListener {
-            Toast.makeText(this, R.string.quick_settings_hint, Toast.LENGTH_LONG).show()
+            MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.quick_settings_title)
+                .setMessage(R.string.quick_settings_hint)
+                .setPositiveButton("Got it", null)
+                .show()
         }
     }
 
@@ -56,11 +60,11 @@ class MainActivity : AppCompatActivity() {
         binding.tvOverlayStatus.text = if (hasPermission) {
             "Granted"
         } else {
-            "Not granted"
+            "Not granted yet"
         }
         binding.tvOverlayStatus.setTextColor(
             if (hasPermission) {
-                ContextCompat.getColor(this, R.color.accent)
+                ContextCompat.getColor(this, R.color.success)
             } else {
                 ContextCompat.getColor(this, R.color.danger)
             }

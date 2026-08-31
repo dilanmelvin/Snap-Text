@@ -112,36 +112,42 @@ object OcrEngine {
                 }
             }.awaitAll()
 
-            val words = perRecognizer
-                .filterNotNull()
-                .flatMap { it.textBlocks }
-                .flatMap { it.lines }
-                .flatMap { it.elements }
-                .mapNotNull { element ->
-                    val text = element.text.trim()
-                    val box = element.boundingBox ?: return@mapNotNull null
-                    val bounds = if (scale > 1f) {
-                        Rect(
-                            (box.left / scale).toInt(),
-                            (box.top / scale).toInt(),
-                            (box.right / scale).toInt(),
-                            (box.bottom / scale).toInt()
-                        )
-                    } else {
-                        box
+            // Recognizer 0 is Latin. It handles ASCII, punctuation and symbols
+            // (like "@") correctly. The CJK / Devanagari recognizers often
+            // hallucinate symbols for those glyphs (e.g. "@" -> circled 6), so we
+            // only trust a non-Latin recognizer for text that actually contains
+            // its script, and we always prefer the Latin reading on a conflict.
+            val candidates = mutableListOf<WordCandidate>()
+            perRecognizer.forEachIndexed { index, result ->
+                if (result == null) return@forEachIndexed
+                val isLatin = index == 0
+                result.textBlocks
+                    .flatMap { it.lines }
+                    .flatMap { it.elements }
+                    .forEach { element ->
+                        val text = element.text.trim()
+                        val box = element.boundingBox ?: return@forEach
+                        val bounds = if (scale > 1f) {
+                            Rect(
+                                (box.left / scale).toInt(),
+                                (box.top / scale).toInt(),
+                                (box.right / scale).toInt(),
+                                (box.bottom / scale).toInt()
+                            )
+                        } else {
+                            box
+                        }
+                        if (!isUsefulText(text, bounds, bitmap.height)) return@forEach
+                        if (!isLatin && !containsNonLatinLetter(text)) return@forEach
+                        candidates.add(WordCandidate(TextBlock(text, bounds), if (isLatin) 0 else 1))
                     }
-                    if (isUsefulText(text, bounds, bitmap.height)) {
-                        TextBlock(text, bounds)
-                    } else {
-                        null
-                    }
-                }
+            }
 
             if (ocrBitmap !== bitmap) {
                 ocrBitmap.recycle()
             }
 
-            val deduped = removeOverlappingDuplicates(words)
+            val deduped = removeOverlappingDuplicates(candidates)
             buildReadingOrder(deduped)
         } catch (exception: Exception) {
             exception.printStackTrace()
@@ -208,25 +214,36 @@ object OcrEngine {
         return result
     }
 
+    private data class WordCandidate(val block: TextBlock, val priority: Int)
+
     /**
      * Removes boxes that overlap heavily in space. Different script recognizers
-     * frequently detect the same on-screen region, so we keep only one box per
-     * region, preferring the longer (usually more complete) text.
+     * frequently detect the same region, so we keep only one box per region.
+     * Candidates are ordered by priority first (Latin wins over hallucinated
+     * non-Latin readings), then by longer / larger text.
      */
-    private fun removeOverlappingDuplicates(blocks: List<TextBlock>): List<TextBlock> {
-        val accepted = mutableListOf<TextBlock>()
-        blocks
-            .sortedWith(compareByDescending<TextBlock> { it.text.length }
-                .thenByDescending { it.bounds.width().toLong() * it.bounds.height() })
-            .forEach { block ->
+    private fun removeOverlappingDuplicates(candidates: List<WordCandidate>): List<TextBlock> {
+        val accepted = mutableListOf<WordCandidate>()
+        candidates
+            .sortedWith(
+                compareBy<WordCandidate> { it.priority }
+                    .thenByDescending { it.block.text.length }
+                    .thenByDescending { it.block.bounds.width().toLong() * it.block.bounds.height() }
+            )
+            .forEach { candidate ->
                 val isDuplicate = accepted.any { existing ->
-                    overlapRatio(existing.bounds, block.bounds) > 0.55f
+                    overlapRatio(existing.block.bounds, candidate.block.bounds) > 0.55f
                 }
                 if (!isDuplicate) {
-                    accepted.add(block)
+                    accepted.add(candidate)
                 }
             }
-        return accepted
+        return accepted.map { it.block }
+    }
+
+    /** True if the text contains a real non-Latin letter (CJK, Hangul, Devanagari, …). */
+    private fun containsNonLatinLetter(text: String): Boolean {
+        return text.any { it.code > 0x02FF && Character.isLetter(it) }
     }
 
     /** Intersection area divided by the smaller box area (0f..1f). */

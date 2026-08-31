@@ -1,6 +1,10 @@
 package com.snaptext.app.overlay
 
 import android.content.Context
+import android.content.res.ColorStateList
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.PixelFormat
@@ -13,7 +17,6 @@ import android.view.Gravity
 import android.view.View
 import android.view.WindowManager
 import android.widget.FrameLayout
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -52,6 +55,10 @@ object OverlayManager {
     private val mainHandler = Handler(Looper.getMainLooper())
     private var autoDismissRunnable: Runnable? = null
 
+    // Held while the overlay is open so the app underneath (video/reel) pauses.
+    private var audioManager: AudioManager? = null
+    private var audioFocusRequest: AudioFocusRequest? = null
+
     /** Step 1: frozen screenshot + dim + spinner shown while scanning. */
     fun showLoading(context: Context, screenshot: Bitmap?) {
         if (!PermissionHelper.canDrawOverlay(context)) return
@@ -80,6 +87,7 @@ object OverlayManager {
         isShowing = true
         windowManager.addView(container, params)
         container.requestFocus()
+        requestAudioFocus(context.applicationContext)
 
         scheduleDismiss(context.applicationContext, LOADING_TIMEOUT_MS, cancel = true)
     }
@@ -154,6 +162,7 @@ object OverlayManager {
         isShowing = true
         windowManager.addView(container, params)
         container.requestFocus()
+        requestAudioFocus(context.applicationContext)
         scheduleAutoDismiss(context.applicationContext)
     }
 
@@ -170,6 +179,7 @@ object OverlayManager {
         } catch (exception: Exception) {
             exception.printStackTrace()
         } finally {
+            abandonAudioFocus()
             if (ownsBitmap) {
                 overlayBitmap?.recycle()
             }
@@ -181,6 +191,45 @@ object OverlayManager {
             isShowing = false
             ownsBitmap = false
         }
+    }
+
+    /**
+     * Requests transient audio focus so media playing in the app underneath
+     * (a video or reel) pauses while SnapText is open, then resumes on dismiss.
+     */
+    private fun requestAudioFocus(context: Context) {
+        if (audioFocusRequest != null) return
+        try {
+            val manager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            val request = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                .setOnAudioFocusChangeListener { }
+                .build()
+            manager.requestAudioFocus(request)
+            audioManager = manager
+            audioFocusRequest = request
+        } catch (exception: Exception) {
+            exception.printStackTrace()
+        }
+    }
+
+    private fun abandonAudioFocus() {
+        val manager = audioManager
+        val request = audioFocusRequest
+        if (manager != null && request != null) {
+            try {
+                manager.abandonAudioFocusRequest(request)
+            } catch (exception: Exception) {
+                exception.printStackTrace()
+            }
+        }
+        audioManager = null
+        audioFocusRequest = null
     }
 
     private fun cancelLoading(context: Context) {
@@ -217,31 +266,40 @@ object OverlayManager {
 
     private fun buildLoadingContent(context: Context): View {
         val loading = FrameLayout(context).apply {
-            setBackgroundColor(Color.argb(120, 0, 0, 0))
+            setBackgroundColor(Color.argb(100, 0, 0, 0))
             isClickable = true
         }
-        val content = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
+
+        // A small, clean pill: spinner + short label.
+        val card = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            background = GradientDrawable().apply {
+                shape = GradientDrawable.RECTANGLE
+                cornerRadius = dp(context, 16).toFloat()
+                setColor(Color.argb(240, 20, 22, 28))
+                setStroke(dp(context, 1), Color.argb(255, 40, 44, 54))
+            }
+            setPadding(dp(context, 22), dp(context, 15), dp(context, 24), dp(context, 15))
         }
-        val iconSize = dp(context, 72)
-        content.addView(ImageView(context).apply {
-            setImageResource(R.drawable.ic_snaptext_logo)
-        }, LinearLayout.LayoutParams(iconSize, iconSize))
-        content.addView(ProgressBar(context), LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.WRAP_CONTENT,
-            LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply { topMargin = dp(context, 20) })
-        content.addView(TextView(context).apply {
+
+        val spinnerSize = dp(context, 22)
+        card.addView(
+            ProgressBar(context, null, android.R.attr.progressBarStyleSmall).apply {
+                indeterminateTintList = ColorStateList.valueOf(Color.WHITE)
+            },
+            LinearLayout.LayoutParams(spinnerSize, spinnerSize)
+        )
+        card.addView(TextView(context).apply {
             text = context.getString(R.string.scanning)
             setTextColor(Color.WHITE)
             textSize = 15f
         }, LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.WRAP_CONTENT,
             LinearLayout.LayoutParams.WRAP_CONTENT
-        ).apply { topMargin = dp(context, 14) })
+        ).apply { leftMargin = dp(context, 14) })
 
-        loading.addView(content, FrameLayout.LayoutParams(
+        loading.addView(card, FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
             FrameLayout.LayoutParams.WRAP_CONTENT
         ).apply { gravity = Gravity.CENTER })

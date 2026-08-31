@@ -13,13 +13,14 @@
     <string name="copy">Copy</string>
     <string name="select_all">Select all</string>
     <string name="selection_hint">Tap a word or drag to select</string>
-    <string name="scanning">Scanning screen…</string>
+    <string name="scanning">Scanning…</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="no_text_found">No text found on screen.</string>
     <string name="scan_failed">Could not scan this screen.</string>
     <string name="screen_capture_denied">Screen capture permission denied.</string>
     <string name="overlay_permission_denied">Please grant overlay permission first.</string>
-    <string name="quick_settings_hint">Pull down from the top, tap the pencil icon, then drag the SnapText tile in.</string>
+    <string name="quick_settings_title">Add the SnapText tile</string>
+    <string name="quick_settings_hint">1.  Open Quick Settings — swipe down from the top of the screen (swipe down twice on some phones).\n\n2.  Open the tile editor. Look for an Edit control — it may appear as a pencil, an “Edit” label, a “+”, or inside a three-dot menu.\n\n3.  Find SnapText in the list of available tiles, then drag it up into your active panel.\n\nTip: on some phones you may need to press and hold an empty tile, or scroll down to see all available tiles.</string>
     <string name="notification_channel_name">SnapText Active</string>
     <string name="notification_text">Scanning screen...</string>
 </resources>
