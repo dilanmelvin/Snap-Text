@@ -40,6 +40,7 @@ class ScreenCaptureService : Service() {
         private const val CHANNEL_ID = "snaptext_capture_channel"
         private const val NOTIFICATION_ID = 1001
         private const val ACTION_START = "ACTION_START_CAPTURE"
+        private const val CAPTURE_DELAY_MS = 650L
 
         fun buildStartIntent(context: Context): Intent {
             return Intent(context, ScreenCaptureService::class.java).apply {
@@ -57,6 +58,9 @@ class ScreenCaptureService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         createNotificationChannel()
         startCaptureForeground()
+
+        // Warm up the OCR models while the previous app returns to the foreground.
+        OcrEngine.warmUp()
 
         if (intent?.action == ACTION_START) {
             startCapture()
@@ -106,7 +110,10 @@ class ScreenCaptureService : Service() {
             )
 
             serviceScope.launch {
-                delay(900)
+                // Wait for the permission activity to finish and the previously
+                // focused app (e.g. Instagram) to return to the foreground and
+                // redraw, so the captured frame is that app and not SnapText.
+                delay(CAPTURE_DELAY_MS)
                 captureFrame(width, height)
             }
         } catch (exception: Exception) {
@@ -143,6 +150,12 @@ class ScreenCaptureService : Service() {
             stopCapture()
             clearProjectionGrant()
 
+            // Show the loading overlay first (dim + icon + spinner), then run OCR,
+            // then reveal the frozen screenshot with highlights. The loading
+            // overlay holds no bitmap, so it can't race the OCR bitmap.
+            withContext(Dispatchers.Main) {
+                OverlayManager.showLoading(applicationContext, croppedBitmap)
+            }
             val textBlocks = OcrEngine.recognize(croppedBitmap)
             withContext(Dispatchers.Main) {
                 OverlayManager.show(applicationContext, textBlocks, croppedBitmap)

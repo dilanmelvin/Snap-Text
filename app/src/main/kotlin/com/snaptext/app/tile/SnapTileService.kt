@@ -7,6 +7,7 @@ import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
 import androidx.annotation.RequiresApi
 import com.snaptext.app.capture.CapturePermissionActivity
+import com.snaptext.app.ocr.OcrEngine
 
 @RequiresApi(Build.VERSION_CODES.N)
 class SnapTileService : TileService() {
@@ -18,6 +19,8 @@ class SnapTileService : TileService() {
     override fun onStartListening() {
         super.onStartListening()
         setInactive()
+        // Warm up OCR models when the tile becomes visible so the first scan is fast.
+        OcrEngine.warmUp()
     }
 
     override fun onClick() {
@@ -28,7 +31,9 @@ class SnapTileService : TileService() {
         }
 
         val captureIntent = Intent(this, CapturePermissionActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                Intent.FLAG_ACTIVITY_NO_ANIMATION or
+                Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
         }
         startActivityAndCollapseCompat(captureIntent)
         setInactive()

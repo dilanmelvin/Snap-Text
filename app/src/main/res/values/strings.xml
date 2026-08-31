@@ -10,6 +10,10 @@
     <string name="step2_btn">Open Quick Settings</string>
     <string name="all_set">All set! Open any app, then tap the SnapText tile.</string>
     <string name="copied">Copied!</string>
+    <string name="copy">Copy</string>
+    <string name="select_all">Select all</string>
+    <string name="selection_hint">Tap a word or drag to select</string>
+    <string name="scanning">Scanning screen…</string>
     <string name="copied_to_clipboard">Copied to clipboard</string>
     <string name="no_text_found">No text found on screen.</string>
     <string name="scan_failed">Could not scan this screen.</string>

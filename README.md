@@ -1,114 +1,133 @@
 # SnapText
 
-SnapText is an Android app that lets you copy visible text from almost any screen. Tap the SnapText Quick Settings tile, approve Android's screen capture prompt, and SnapText will run on-device OCR and place subtle tappable selection areas over detected text. Tapping a detected text area copies that text to the clipboard.
+SnapText is an Android app for copying visible text from almost any screen. Add the SnapText Quick Settings tile, tap it over another app, approve Android's screen capture prompt, and SnapText scans the current screen with on-device OCR. Detected words are highlighted on top of the screen. Tap a word to select it, then tap Copy.
 
-The app is built fully in Kotlin with traditional Android XML layouts and ViewBinding.
+The app is written in Kotlin with XML layouts, ViewBinding, Android MediaProjection, WindowManager overlays, and Google ML Kit Text Recognition.
 
-## Features
+## Download APK
 
-- Quick Settings tile for fast screen scanning
-- On-device OCR using Google ML Kit Text Recognition
-- Tappable overlay for copied text blocks
-- Clipboard copy with confirmation toast
-- Works over other apps using Android overlay windows
-- No backend server
-- No account or login
-- No database
-- No internet required after install for normal OCR usage
-- Kotlin-only Android codebase
-- XML layouts with ViewBinding, no Jetpack Compose
+After building the project, the debug APK is available here:
 
-## How It Works
+[Download app-debug.apk](app/build/outputs/apk/debug/app-debug.apk)
 
-SnapText uses Android's `MediaProjection` API to capture the current screen after user approval. The captured bitmap is processed locally with ML Kit Text Recognition. Detected text lines are converted into screen-positioned selection targets. When the user taps one of those targets, SnapText copies the detected text to the Android clipboard and dismisses the overlay.
+You can install this APK on an Android phone by transferring it to the phone and opening it, or by using Android Studio. Android may ask you to allow installing apps from that source.
 
-Flow:
+Note: this is a debug APK. For sharing publicly, create and sign a release APK.
 
-1. User taps the SnapText Quick Settings tile.
-2. Android asks for screen capture permission.
-3. SnapText captures the visible screen.
-4. ML Kit extracts text from the screenshot.
-5. SnapText displays tappable text selection areas.
-6. User taps a text area.
-7. Text is copied to clipboard.
+## What This App Does
 
-## Important Android Limitation
+- Captures the current visible screen after Android system approval.
+- Runs OCR locally on the captured bitmap.
+- Detects individual words instead of only whole lines.
+- Shows a transparent overlay aligned to the captured screen.
+- Lets the user tap a detected word to select it.
+- Shows a Copy button only after a word is selected.
+- Copies the selected word to the Android clipboard.
+- Auto-dismisses the overlay if the user does nothing.
 
-Android does not allow silent screen capture from a normal app. The screen capture consent dialog is controlled by the operating system and cannot be removed by app code.
+## Current User Flow
 
-On Android 14 and newer, screen capture permissions are treated as one-shot sessions, so the user may need to approve capture each time. This is expected Android privacy behavior.
+1. Open SnapText once.
+2. Grant display-over-other-apps permission.
+3. Add the SnapText tile to Quick Settings.
+4. Open any app that has visible text.
+5. Pull down Quick Settings and tap SnapText.
+6. Approve the Android screen capture prompt.
+7. Tap the word you want.
+8. Tap Copy.
 
-SnapText can only OCR what is currently visible on screen. It cannot automatically scroll another app and extract hidden content unless a separate accessibility-based implementation is added.
+## Important Android Limitations
+
+Android does not allow normal apps to capture the screen silently. The capture permission dialog is controlled by Android and cannot be removed by this app.
+
+On Android 14 and newer, MediaProjection permissions are normally one-shot sessions. That means the capture prompt can appear each time the Quick Settings tile is used.
+
+SnapText can only OCR text that is visible in the screenshot. It cannot read hidden content, scroll another app automatically, or extract text from protected screens that block screenshots.
 
 ## Tech Stack
 
 - Language: Kotlin
-- UI: XML layouts
+- UI: Android XML layouts
 - Binding: ViewBinding
 - OCR: Google ML Kit Text Recognition
 - Screen capture: Android MediaProjection
-- Overlay: WindowManager with application overlay windows
-- Build system: Gradle Kotlin DSL
+- Overlay: Android WindowManager application overlay
+- Async work: Kotlin coroutines
 - Minimum SDK: 26
 - Target SDK: 34
 - Compile SDK: 34
+- Android Gradle Plugin: 8.7.3
+- Gradle wrapper: 8.9
+- Java: JDK 17 or newer
 
 ## Project Structure
 
 ```text
 SnapText/
-├── app/
-│   ├── build.gradle.kts
-│   └── src/main/
-│       ├── AndroidManifest.xml
-│       ├── kotlin/com/snaptext/app/
-│       │   ├── MainActivity.kt
-│       │   ├── capture/
-│       │   │   ├── CapturePermissionActivity.kt
-│       │   │   ├── CaptureResultReceiver.kt
-│       │   │   └── ScreenCaptureService.kt
-│       │   ├── ocr/
-│       │   │   └── OcrEngine.kt
-│       │   ├── overlay/
-│       │   │   └── OverlayManager.kt
-│       │   ├── tile/
-│       │   │   └── SnapTileService.kt
-│       │   └── utils/
-│       │       ├── ClipboardHelper.kt
-│       │       └── PermissionHelper.kt
-│       └── res/
-│           ├── drawable/
-│           ├── layout/
-│           └── values/
-├── build.gradle.kts
-├── gradle.properties
-├── settings.gradle.kts
-├── gradlew
-└── gradlew.bat
+|-- app/
+|   |-- build.gradle.kts
+|   `-- src/main/
+|       |-- AndroidManifest.xml
+|       |-- kotlin/com/snaptext/app/
+|       |   |-- MainActivity.kt
+|       |   |-- capture/
+|       |   |   |-- CapturePermissionActivity.kt
+|       |   |   |-- CaptureResultReceiver.kt
+|       |   |   `-- ScreenCaptureService.kt
+|       |   |-- ocr/
+|       |   |   `-- OcrEngine.kt
+|       |   |-- overlay/
+|       |   |   `-- OverlayManager.kt
+|       |   |-- tile/
+|       |   |   `-- SnapTileService.kt
+|       |   `-- utils/
+|       |       |-- ClipboardHelper.kt
+|       |       `-- PermissionHelper.kt
+|       `-- res/
+|           |-- drawable/
+|           |-- layout/
+|           `-- values/
+|-- build.gradle.kts
+|-- gradle.properties
+|-- settings.gradle.kts
+|-- gradlew
+`-- gradlew.bat
 ```
 
-## Requirements
+## Core Components
 
-- Android Studio
-- JDK 17
-- Android SDK 34
-- Android device or emulator running Android 8.0 or newer
+### MainActivity
 
-A real Android phone is recommended for testing Quick Settings tiles and screen capture behavior. Emulators can work, but tile behavior and overlay permissions can be less convenient.
+The setup screen. It lets the user open Android overlay permission settings and shows whether the permission is currently granted.
+
+### SnapTileService
+
+The Quick Settings tile entry point. When the tile is tapped, it launches `CapturePermissionActivity` and collapses Quick Settings.
+
+### CapturePermissionActivity
+
+A transparent activity that requests screen capture permission using `MediaProjectionManager`. If overlay permission is missing, it sends the user back to setup.
+
+### ScreenCaptureService
+
+A foreground service that starts the MediaProjection session, captures one frame through `ImageReader`, converts it to a bitmap, runs OCR, then opens the selection overlay.
+
+### OcrEngine
+
+Runs ML Kit Text Recognition on the screenshot. It now extracts `Text.Element` results, which are word-level OCR elements, instead of copying whole detected lines.
+
+### OverlayManager
+
+Draws the full-screen overlay. Each detected word gets a touch target aligned to its OCR bounding box. Tapping a word selects it and shows a Copy button; copying dismisses the overlay.
 
 ## Build
 
 Open the project in Android Studio and wait for Gradle Sync to finish.
 
-From terminal:
-
-```bash
-./gradlew clean assembleDebug
-```
-
-On Windows PowerShell:
+From Windows PowerShell:
 
 ```powershell
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
 .\gradlew.bat clean assembleDebug
 ```
 
@@ -121,33 +140,39 @@ app/build/outputs/apk/debug/app-debug.apk
 ## Run In Android Studio
 
 1. Open Android Studio.
-2. Choose `File > Open`.
-3. Select the SnapText project folder.
+2. Choose File > Open.
+3. Select this SnapText project folder.
 4. Wait for Gradle Sync.
-5. Select a connected device or emulator.
+5. Connect an Android phone or start an emulator.
 6. Click Run.
 
-## First-Time App Setup
+A real phone is recommended because Quick Settings tile behavior and overlay permissions are easier to test on a device.
 
-1. Open SnapText.
-2. Tap `Grant Overlay Permission`.
-3. Enable display-over-other-apps permission for SnapText.
-4. Pull down Quick Settings.
-5. Tap the edit or pencil button.
-6. Add the SnapText tile to your Quick Settings panel.
+## Install The APK On A Phone
 
-## Using SnapText
+Option 1: Android Studio
 
-1. Open any app with visible text.
-2. Pull down Quick Settings.
-3. Tap the SnapText tile.
-4. Approve Android's screen capture dialog.
-5. Tap the highlighted text area you want.
-6. The text is copied to your clipboard.
+1. Connect the phone with USB debugging enabled.
+2. Select the phone in Android Studio.
+3. Click Run.
+
+Option 2: APK file
+
+1. Build the debug APK.
+2. Copy `app/build/outputs/apk/debug/app-debug.apk` to the phone.
+3. Open the APK on the phone.
+4. Allow installation from that source if Android asks.
+5. Open SnapText and complete setup.
+
+Option 3: ADB
+
+```powershell
+adb install -r app\build\outputs\apk\debug\app-debug.apk
+```
 
 ## Permissions
 
-SnapText uses these permissions:
+SnapText declares these permissions:
 
 ```xml
 <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -157,70 +182,32 @@ SnapText uses these permissions:
 
 Permission purpose:
 
-- `SYSTEM_ALERT_WINDOW`: displays tappable text selection overlay above other apps.
-- `FOREGROUND_SERVICE`: runs screen capture work as a foreground service.
-- `FOREGROUND_SERVICE_MEDIA_PROJECTION`: required for MediaProjection foreground service on modern Android versions.
-
-## Core Components
-
-### `SnapTileService`
-
-Handles the Quick Settings tile. When tapped, it launches the transparent capture permission activity and briefly updates tile state.
-
-### `CapturePermissionActivity`
-
-Requests Android screen capture permission using `MediaProjectionManager`. It uses a transparent theme so the flow feels lightweight.
-
-### `ScreenCaptureService`
-
-Starts a foreground service, captures the screen using MediaProjection and ImageReader, runs OCR, then passes results to the overlay.
-
-### `OcrEngine`
-
-Uses ML Kit Text Recognition to extract visible text from the captured bitmap. It filters common noise such as status bar times and tiny fragments.
-
-### `OverlayManager`
-
-Draws a full-screen overlay with subtle tappable text targets. Tapping a target copies that block to the clipboard and dismisses the overlay.
+- `SYSTEM_ALERT_WINDOW`: lets SnapText draw selectable word boxes above other apps.
+- `FOREGROUND_SERVICE`: lets screen capture work run in a foreground service.
+- `FOREGROUND_SERVICE_MEDIA_PROJECTION`: required for MediaProjection foreground services on modern Android versions.
 
 ## Testing Checklist
 
-- Overlay permission opens correctly.
-- Quick Settings tile appears after adding it manually.
-- Tile opens Android screen capture prompt.
-- Capturing a text-heavy screen shows selectable areas.
-- Tapping a detected text area copies text.
-- Empty or image-only screens do not crash.
-- Overlay dismisses after tapping a text area.
-- Overlay auto-dismisses if left open.
-- Repeated tile taps do not create duplicate overlays.
+- Open SnapText and grant overlay permission.
+- Add SnapText to Quick Settings.
+- Open a screen with clear text.
+- Tap the SnapText tile.
+- Approve the capture prompt.
+- Confirm detected words are highlighted close to the real word positions.
+- Tap one word and confirm it selects without copying immediately.
+- Tap Copy and confirm only that selected word is copied.
+- Tap outside a selected word once and confirm selection clears.
+- Tap outside again and confirm the overlay closes.
+- Wait without action and confirm the overlay auto-dismisses.
 
 ## Troubleshooting
 
-### AndroidX dependency error
+### Gradle says JAVA_HOME is missing
 
-Make sure `gradle.properties` includes:
+Set `JAVA_HOME` to Android Studio's bundled JDK:
 
-```properties
-android.useAndroidX=true
-android.enableJetifier=true
-```
-
-### Resource filename error
-
-Android resource filenames must contain only lowercase letters, numbers, and underscores.
-
-Valid:
-
-```text
-ic_snaptext_logo.png
-```
-
-Invalid:
-
-```text
-ic_snaptext_logo.png.png
-SnapTextLogo.png
+```powershell
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
 ```
 
 ### Overlay does not appear
@@ -229,27 +216,26 @@ Open Android Settings and make sure SnapText has display-over-other-apps permiss
 
 ### Tile does not show
 
-Manually add SnapText from the Quick Settings edit screen. Some launchers place new tiles at the bottom of the available tile list.
+Pull down Quick Settings, tap the edit or pencil button, then manually add SnapText from the available tiles.
 
 ### Screen capture prompt appears every time
 
-This is expected on newer Android versions. Android controls this prompt for user privacy.
+This is expected on newer Android versions. Android controls this for privacy.
 
-### OCR is inaccurate
+### OCR selection is slightly off
 
-OCR depends on screenshot quality, text contrast, font size, and background noise. High-contrast static text works best.
+OCR bounding boxes come from ML Kit and depend on screenshot quality, text size, contrast, font, and background. Static high-contrast text works best.
+
+### Some words are missing
+
+Very tiny text, stylized logos, low-contrast UI text, and protected screenshots may not be detected reliably.
 
 ## Release Build
 
 Generate an unsigned release APK:
 
-```bash
-./gradlew assembleRelease
-```
-
-Windows:
-
 ```powershell
+$env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
 .\gradlew.bat assembleRelease
 ```
 
@@ -259,22 +245,17 @@ Release APK output:
 app/build/outputs/apk/release/app-release-unsigned.apk
 ```
 
-For distribution, sign the APK with your release key before sharing.
+Sign the release APK before distributing it publicly.
 
 ## Privacy
 
-SnapText performs OCR locally on the device. The app does not include a backend, account system, or database. Screen capture permission is requested through Android's system dialog, and captured images are processed in memory for OCR.
+SnapText performs OCR locally on the device. It has no backend server, no account system, no database, and no analytics. Captured screenshots are processed in memory and are not uploaded by this app.
 
 ## Roadmap Ideas
 
-- Better text grouping for chat and document screens
-- Optional copy-all mode
-- Language selection for OCR
-- Floating close button for overlay
-- Better app icon and adaptive launcher icon
-- Improved onboarding screen
-- Automated UI tests
-
-## License
-
-Add your preferred license here before publishing the project publicly.
+- Drag selection across multiple words.
+- Copy full line or copy all detected text mode.
+- Better language selection for non-English OCR.
+- Persistent quick action panel for copy, search, and share.
+- Automated UI and instrumentation tests.
+- Signed release workflow with a public GitHub Releases download link.

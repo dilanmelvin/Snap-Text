@@ -9,6 +9,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.snaptext.app.databinding.ActivityMainBinding
+import com.snaptext.app.ocr.OcrEngine
 import com.snaptext.app.utils.PermissionHelper
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +27,9 @@ class MainActivity : AppCompatActivity() {
 
         setupButtons()
         updateOverlayStatus()
+
+        // Preload OCR models so the first scan from the tile is fast.
+        OcrEngine.warmUp()
     }
 
     override fun onResume() {

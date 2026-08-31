@@ -36,12 +36,21 @@
             android:name=".capture.CapturePermissionActivity"
             android:excludeFromRecents="true"
             android:exported="false"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
             android:theme="@style/Theme.SnapText.Transparent" />
 
         <service
             android:name=".capture.ScreenCaptureService"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+
+        <activity
+            android:name=".utils.CopyActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
 
     </application>
 
